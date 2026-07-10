@@ -1,13 +1,15 @@
 ﻿using System.Windows;
 using BlankApp.Views;
 using Prism.Ioc;
+using Prism;
+using Prism.Unity;
 
 namespace BlankApp
 {
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App
+    public partial class App :PrismApplication
     {
         protected override Window CreateShell()
         {
