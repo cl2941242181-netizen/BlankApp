@@ -10,6 +10,6 @@ namespace BlankApp.Services.Interfaces
 {
     internal interface ITranslateService
     {
-        Task<TranslateResult> TranslateAsync(string text,string formLanguage,string toLanguage);
+        Task<string> TranslateAsync(string text,string formLanguage,string toLanguage);
     }
 }

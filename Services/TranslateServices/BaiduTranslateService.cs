@@ -7,18 +7,27 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft;
+using Newtonsoft.Json;
 
 namespace BlankApp.Services.TranslateServices
 {
+    
     internal class BaiduTranslateService : ITranslateService
     {
         // ====== 填入你在百度开放平台申请的凭证 ======
-        private const string AppId = "你的APP_ID";
-        private const string SecretKey = "你的密钥";
+        private const string AppId = "20260710002645651";
+        private const string SecretKey = "pKxiybTkWjIz69DYsvGX";
         private const string ApiUrl = "https://fanyi-api.baidu.com/api/trans/vip/translate";
 
-
-        public static async Task<string> TranslateAsync(string text, string formLanguage, string toLanguage)
+        /// <summary>
+        /// 异步翻译方法
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="formLanguage"></param>
+        /// <param name="toLanguage"></param>
+        /// <returns></returns>
+        public async Task<string> TranslateAsync(string text, string formLanguage, string toLanguage)
         {
             string salt = new Random().Next(100000, 999999).ToString();
 
@@ -43,16 +52,16 @@ namespace BlankApp.Services.TranslateServices
                 HttpResponseMessage response = await client.PostAsync(ApiUrl, content);
                 response.EnsureSuccessStatusCode();
 
-               var res = await response.Content.ReadAsStringAsync();
+                var res = await response.Content.ReadAsStringAsync();
 
-
+                return res;
             }
         }
 
         /// <summary>
         /// 计算 32 位小写 MD5
         /// </summary>
-        private static string GetMd5Hash(string input)
+        private string GetMd5Hash(string input)
         {
             using (MD5 md5 = MD5.Create())
             {
@@ -68,7 +77,16 @@ namespace BlankApp.Services.TranslateServices
             }
         }
 
+        /// <summary>
+        /// 结果转换方法
+        /// </summary>
+        /// <param name="res"></param>
+        /// <returns></returns>
+        private BaiduTranslateResult ConvertStringToBaiduTranslateResult(string res)
+        {
+            var result = JsonConvert.DeserializeObject<BaiduTranslateResult>(res);
 
-
+            return result;
+        }
     }
 }
