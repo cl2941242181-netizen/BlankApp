@@ -3,6 +3,11 @@ using BlankApp.Views;
 using Prism.Ioc;
 using Prism;
 using Prism.Unity;
+using BlankApp.Services.Interfaces;
+using BlankApp.Services.TranslateServices;
+using BlankApp.ViewModels;
+using BlankApp.Models;
+using BlankApp.Services;
 
 namespace BlankApp
 {
@@ -18,6 +23,11 @@ namespace BlankApp
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
+            containerRegistry.RegisterSingleton<ITranslateService, BaiduTranslateService>(APITypes.Baidu.ToString());
+
+            containerRegistry.RegisterSingleton<ITranslateService, TranslateProxyService>();
+
+            containerRegistry.RegisterForNavigation<MainWindow, MainWindowViewModel>();
 
         }
     }

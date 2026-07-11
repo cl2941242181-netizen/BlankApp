@@ -8,8 +8,10 @@ using System.Windows.Media.Animation;
 
 namespace BlankApp.Services.Interfaces
 {
-    internal interface ITranslateService
+    public interface ITranslateService
     {
         Task<string> TranslateAsync(string text,string formLanguage,string toLanguage);
+        
+        string AppendTranslateResStr(string json);
     }
 }

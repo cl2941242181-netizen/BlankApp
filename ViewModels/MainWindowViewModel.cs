@@ -1,4 +1,7 @@
-﻿using BlankApp.Services.TranslateServices;
+﻿using BlankApp.Models;
+using BlankApp.Services;
+using BlankApp.Services.Interfaces;
+using BlankApp.Services.TranslateServices;
 using Newtonsoft.Json.Linq;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -12,12 +15,20 @@ namespace BlankApp.ViewModels
 {
     public class MainWindowViewModel : BindableBase
     {
-        public MainWindowViewModel()
+        #region 私有字段
+        private readonly ITranslateService _translateService;
+
+        #endregion
+
+        public MainWindowViewModel(ITranslateService translateService)
         {
+            _translateService = translateService;
+
             TranslateCommand = new DelegateCommand(ExecuteTranslate, CanExecuteTranslate)
-                .ObservesProperty(() => SourceText)
-                .ObservesProperty(() => IsTranslating);
+                .ObservesProperty(() => SourceText).ObservesProperty(() => IsTranslating);
+
             SwapLanguagesCommand = new DelegateCommand(ExecuteSwapLanguages);
+
             CopyResultCommand = new DelegateCommand(ExecuteCopyResult, CanExecuteCopyResult)
                 .ObservesProperty(() => TranslatedText);
 
@@ -56,6 +67,7 @@ namespace BlankApp.ViewModels
 
         public int SourceTextLength => SourceText?.Length ?? 0;
 
+        //内部实现广播的数据列表
         private ObservableCollection<LanguageInfo> _languages;
         public ObservableCollection<LanguageInfo> Languages
         {
@@ -84,12 +96,28 @@ namespace BlankApp.ViewModels
             set => SetProperty(ref _isTranslating, value);
         }
 
+        private APITypes _currentApiType = APITypes.Baidu;
+        public APITypes CurrentApiType
+        {
+            get => _currentApiType;
+            set
+            {
+                if (SetProperty(ref _currentApiType, value))
+                {
+                    SwitchAPIType(value);
+                }
+                ;
+            }
+        }
+
         #endregion
 
         #region 命令
 
         public DelegateCommand TranslateCommand { get; }
+
         public DelegateCommand SwapLanguagesCommand { get; }
+
         public DelegateCommand CopyResultCommand { get; }
 
         #endregion
@@ -139,11 +167,11 @@ namespace BlankApp.ViewModels
                 string toLang = SelectedTargetLanguage?.Code ?? "en";
 
                 // 直接调用百度翻译服务的静态方法
-                string jsonResult = await BaiduTranslateService.TranslateAsync(
+                string jsonResult = await _translateService.TranslateAsync(
                     SourceText, fromLang, toLang);
 
                 // 使用 JObject 解析返回的 JSON
-                TranslatedText = ParseTranslationResult(jsonResult);
+                TranslatedText = _translateService.AppendTranslateResStr(jsonResult);
             }
             catch (Exception ex)
             {
@@ -230,5 +258,13 @@ namespace BlankApp.ViewModels
         }
 
         #endregion
+
+        private void SwitchAPIType(APITypes apiTypes)
+        {
+            if (apiTypes != _currentApiType && _translateService is TranslateProxyService proxy)
+            {
+                proxy.CurrentType = apiTypes;
+            }
+        }
     }
 }

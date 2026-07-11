@@ -82,11 +82,24 @@ namespace BlankApp.Services.TranslateServices
         /// </summary>
         /// <param name="res"></param>
         /// <returns></returns>
-        private BaiduTranslateResult ConvertStringToBaiduTranslateResult(string res)
+        public string AppendTranslateResStr(string res)
         {
             var result = JsonConvert.DeserializeObject<BaiduTranslateResult>(res);
 
-            return result;
+            var str = new StringBuilder();
+            if (!result.IsSuccess)
+            {
+                str.AppendLine($"错误代码：{result.ErrorCode}");
+                str.AppendLine($"错误信息：{result.ErrorMsg}");
+            }
+            else
+            {
+                foreach (var item in result?.TransResult)
+                {
+                    str.AppendLine($"翻译结果：{item.Dst}");
+                }
+            }
+            return str.ToString();
         }
     }
 }
