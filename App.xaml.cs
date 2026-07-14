@@ -1,13 +1,14 @@
-﻿using System.Windows;
-using BlankApp.Views;
-using Prism.Ioc;
-using Prism;
-using Prism.Unity;
+﻿using BlankApp.Models;
+using BlankApp.Services;
 using BlankApp.Services.Interfaces;
 using BlankApp.Services.TranslateServices;
 using BlankApp.ViewModels;
-using BlankApp.Models;
-using BlankApp.Services;
+using BlankApp.Views;
+using Prism;
+using Prism.Ioc;
+using Prism.Regions;
+using Prism.Unity;
+using System.Windows;
 
 namespace BlankApp
 {
@@ -29,6 +30,18 @@ namespace BlankApp
 
             containerRegistry.RegisterForNavigation<MainWindow, MainWindowViewModel>();
 
+            containerRegistry.RegisterForNavigation<TranslateHistoryView, TranslateHistoryViewModel>();
+
+        }
+
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+
+            //区域管理器
+            var regionManager = Container.Resolve<IRegionManager>();
+
+            regionManager.RegisterViewWithRegion("HistoryRegion", typeof(TranslateHistoryView));
         }
     }
 }

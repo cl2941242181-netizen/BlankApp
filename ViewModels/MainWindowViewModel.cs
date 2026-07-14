@@ -1,9 +1,11 @@
-﻿using BlankApp.Models;
+﻿using BlankApp.Events;
+using BlankApp.Models;
 using BlankApp.Services;
 using BlankApp.Services.Interfaces;
 using BlankApp.Services.TranslateServices;
 using Newtonsoft.Json.Linq;
 using Prism.Commands;
+using Prism.Events;
 using Prism.Mvvm;
 using System;
 using System.Collections.ObjectModel;
@@ -15,19 +17,27 @@ namespace BlankApp.ViewModels
 {
     public class MainWindowViewModel : BindableBase
     {
+        #region 全局事件
+
+        #endregion 
+
         #region 私有字段
         private readonly ITranslateService _translateService;
 
+        private readonly IEventAggregator _eventAggregator;
         #endregion
 
-        public MainWindowViewModel(ITranslateService translateService)
+        public MainWindowViewModel(ITranslateService translateService
+            ,IEventAggregator eventAggregator)
         {
             _translateService = translateService;
+
+            _eventAggregator = eventAggregator;
 
             TranslateCommand = new DelegateCommand(ExecuteTranslate, CanExecuteTranslate)
                 .ObservesProperty(() => SourceText).ObservesProperty(() => IsTranslating);
 
-            SwapLanguagesCommand = new DelegateCommand(ExecuteSwapLanguages);
+            SwapLanguagesCommand = new DelegateCommand(ExecuteSwapLanguages, CanExecuteSwapLanguages);
 
             CopyResultCommand = new DelegateCommand(ExecuteCopyResult, CanExecuteCopyResult)
                 .ObservesProperty(() => TranslatedText);
@@ -37,6 +47,8 @@ namespace BlankApp.ViewModels
             SelectedSourceLanguage = Languages.First(l => l.Code == "auto");
             SelectedTargetLanguage = Languages.First(l => l.Code == "en");
         }
+
+        
 
         #region 属性
 
@@ -172,6 +184,15 @@ namespace BlankApp.ViewModels
 
                 // 使用 JObject 解析返回的 JSON
                 TranslatedText = _translateService.AppendTranslateResStr(jsonResult);
+
+                // 发布翻译完成事件
+                _eventAggregator.GetEvent<TranslationCompletedEvent>().Publish(
+                    new TranslationCompletedEventArgs
+                    {
+                        OriginalText = SourceText,
+                        TranslatedText = TranslatedText,
+                        TimeStamp = DateTime.Now
+                    });
             }
             catch (Exception ex)
             {
@@ -198,6 +219,11 @@ namespace BlankApp.ViewModels
                 SourceText = TranslatedText;
                 TranslatedText = string.Empty;
             }
+        }
+
+        private bool CanExecuteSwapLanguages()
+        {
+            return true;
         }
 
         private bool CanExecuteCopyResult()

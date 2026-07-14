@@ -193,7 +193,12 @@
         </Style>
     </Window.Resources>
 
-    <Grid Margin="20">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid Margin="20" Grid.Column="0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -315,17 +320,29 @@
         <!-- 翻译按钮 -->
         <Button Grid.Row="2"
                 Style="{StaticResource RoundedButton}"
-                Width="200" Margin="0,20,0,0"
+                Width="100" Margin="0,20,0,0"
                 HorizontalAlignment="Right"
                 Command="{Binding TranslateCommand}"
                 Content="🔄 翻 译"/>
 
         <ComboBox Grid.Row="2"
                   Style="{StaticResource LanguageComboBox}"
-                  Width="200" Margin="0,20,0,0"
+                  Width="100" Margin="0,20,0,0"
                   HorizontalAlignment="Left"
                   ItemsSource="{Binding Source={StaticResource EnumDataProvider}}"
                   SelectedItem="{Binding CurrentApiType, Mode=TwoWay}"
                   />
+
+            <Button Grid.Row="2"
+                    Width="100" Margin="0,20,0,0">
+                API设置
+            </Button>
     </Grid>
+
+        <ContentControl Grid.Column="1" prism:RegionManager.RegionName="HistoryRegion">
+            
+        </ContentControl>
+    </Grid>
+    
+    
 </Window>
