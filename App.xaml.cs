@@ -32,6 +32,7 @@ namespace BlankApp
 
             containerRegistry.RegisterForNavigation<TranslateHistoryView, TranslateHistoryViewModel>();
 
+            containerRegistry.RegisterDialog<APISettingView,APISettingViewModel>("APISettingDialog");
         }
 
         protected override void OnInitialized()

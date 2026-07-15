@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
+using Prism.Services.Dialogs;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -25,14 +26,19 @@ namespace BlankApp.ViewModels
         private readonly ITranslateService _translateService;
 
         private readonly IEventAggregator _eventAggregator;
+
+        private readonly IDialogService _dialogService;
         #endregion
 
         public MainWindowViewModel(ITranslateService translateService
-            ,IEventAggregator eventAggregator)
+            ,IEventAggregator eventAggregator
+            ,IDialogService dialogService)
         {
             _translateService = translateService;
 
             _eventAggregator = eventAggregator;
+
+            _dialogService = dialogService;
 
             TranslateCommand = new DelegateCommand(ExecuteTranslate, CanExecuteTranslate)
                 .ObservesProperty(() => SourceText).ObservesProperty(() => IsTranslating);
@@ -41,6 +47,8 @@ namespace BlankApp.ViewModels
 
             CopyResultCommand = new DelegateCommand(ExecuteCopyResult, CanExecuteCopyResult)
                 .ObservesProperty(() => TranslatedText);
+
+            SettingAPICommand = new DelegateCommand(ExecuteSettingAPI, CanExecuteSettingAPI);
 
             InitializeLanguages();
 
@@ -131,6 +139,8 @@ namespace BlankApp.ViewModels
         public DelegateCommand SwapLanguagesCommand { get; }
 
         public DelegateCommand CopyResultCommand { get; }
+
+        public DelegateCommand SettingAPICommand { get; set; }
 
         #endregion
 
@@ -239,6 +249,28 @@ namespace BlankApp.ViewModels
                 MessageBox.Show("翻译结果已复制到剪贴板！", "提示",
                     MessageBoxButton.OK, MessageBoxImage.Information);
             }
+        }
+
+        private bool CanExecuteSettingAPI()
+        {
+            return true;
+        }
+
+        private void ExecuteSettingAPI()
+        {
+            // 打开 API 设置窗口的逻辑
+            // 这里可以使用 Prism 的 DialogService 或其他方式打开设置窗口
+            _dialogService.ShowDialog("APISettingDialog", null, result =>
+            {
+                if (result.Result == ButtonResult.OK)
+                {
+                    // 获取设置的 API Key 或其他参数
+                    var apiKey = result.Parameters.GetValue<string>("APIKey");
+                    // 保存或使用 API Key
+                    MessageBox.Show($"API Key 已保存：{apiKey}", "提示",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            });
         }
 
         #endregion
